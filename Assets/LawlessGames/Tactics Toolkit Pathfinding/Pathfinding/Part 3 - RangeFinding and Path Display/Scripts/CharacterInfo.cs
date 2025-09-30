@@ -16,11 +16,45 @@ namespace finished3
 
         [Header("능력치 설정")]
         public int movementRange = 4;
-        // korean: [추가됨] 캐릭터의 공격 사거리입니다. 근접 유닛은 1입니다.
         public int attackRange = 1;
 
-        // korean: [수정됨] 이동 또는 공격 등 '행동'을 했는지 여부를 확인합니다.
+        // --- [추가] ---
+        public int health = 100;
+        public int maxHealth = 100;
+        public int attackDamage = 25;
+        // --- [추가 끝] ---
+
         public bool hasActedThisTurn = false;
+
+        // --- [추가] 데미지를 받는 함수 ---
+        public void TakeDamage(int damage)
+        {
+            health -= damage;
+            Debug.Log(name + "이(가) " + damage + "의 데미지를 입었습니다. 현재 체력: " + health);
+
+            if (health <= 0)
+            {
+                Die();
+            }
+        }
+
+        // --- [추가] 캐릭터가 사망했을 때 처리 ---
+        private void Die()
+        {
+            Debug.Log(name + "이(가) 쓰러졌습니다.");
+
+            // 타일에서 캐릭터 정보 제거
+            if (standingOnTile != null)
+            {
+                standingOnTile.characterOnTile = null;
+            }
+
+            // GameManager에게 사망 사실 알리기 (나중에 구현)
+            // GameManager.Instance.OnCharacterDied(this);
+
+            // 게임 오브젝트 파괴
+            Destroy(gameObject);
+        }
     }
 }
 

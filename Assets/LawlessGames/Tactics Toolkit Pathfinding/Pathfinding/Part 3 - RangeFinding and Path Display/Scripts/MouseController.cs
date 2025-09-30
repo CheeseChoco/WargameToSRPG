@@ -12,6 +12,8 @@ namespace finished3
         public float speed;
 
         private CharacterInfo selectedCharacter;
+        // --- [추가] 이동 후 공격할 대상을 저장하기 위한 변수 ---
+        private CharacterInfo targetToAttack;
 
         private PathFinder pathFinder;
         private RangeFinder rangeFinder;
@@ -23,6 +25,7 @@ namespace finished3
         private List<OverlayTile> attackRangeTiles = new List<OverlayTile>();
 
         private bool isMoving = false;
+
 
         private void Start()
         {
@@ -81,10 +84,14 @@ namespace finished3
 
         private void HandlePlayerTurnPhase(OverlayTile focusedTile)
         {
-            if (selectedCharacter != null && (rangeFinderTiles.Contains(focusedTile) || attackRangeTiles.Contains(focusedTile)))
+            if (selectedCharacter != null && rangeFinderTiles.Contains(focusedTile))
             {
                 var previewPath = pathFinder.FindPath(selectedCharacter.standingOnTile, focusedTile, rangeFinderTiles);
                 ShowPathArrows(previewPath);
+            }
+            else
+            {
+                ShowPathArrows(new List<OverlayTile>()); // 경로 미리보기 초기화
             }
 
             if (Input.GetMouseButtonDown(0))
@@ -99,10 +106,31 @@ namespace finished3
                 }
                 else if (selectedCharacter != null)
                 {
-                    // 2. 적군 유닛 공격
-                    if (focusedTile.characterOnTile != null && focusedTile.characterOnTile.faction != Faction.Player && attackRangeTiles.Contains(focusedTile))
+                    var targetCharacter = focusedTile.characterOnTile;
+
+                    // 2. 적군 유닛 '이동 후 공격'
+                    if (targetCharacter != null && targetCharacter.faction != Faction.Player)
                     {
-                        PerformAttack(selectedCharacter, focusedTile.characterOnTile);
+                        // 공격 가능한 모든 타일 찾기 (적 주변)
+                        var attackableTiles = rangeFinder.GetTilesInPureRange(targetCharacter.standingOnTile.grid2DLocation, selectedCharacter.attackRange);
+
+                        // 이동 가능한 타일과 공격 가능한 타일의 교집합 찾기
+                        var reachableAttackTiles = rangeFinderTiles.Intersect(attackableTiles).ToList();
+
+                        if (reachableAttackTiles.Count > 0)
+                        {
+                            // 가장 가까운 공격 위치 찾기
+                            OverlayTile bestTile = reachableAttackTiles.OrderBy(t => Vector2Int.Distance(t.grid2DLocation, selectedCharacter.standingOnTile.grid2DLocation)).First();
+
+                            path = pathFinder.FindPath(selectedCharacter.standingOnTile, bestTile, rangeFinderTiles);
+                            targetToAttack = targetCharacter; // 공격 대상 저장
+                            isMoving = true;
+                            HideRangeAndPath();
+                        }
+                        else
+                        {
+                            Debug.Log("공격할 수 있는 위치로 이동할 수 없습니다.");
+                        }
                     }
                     // 3. 빈 타일로 이동
                     else if (rangeFinderTiles.Contains(focusedTile))
@@ -123,7 +151,7 @@ namespace finished3
         {
             Debug.Log(attacker.name + "가 " + target.name + "을(를) 공격합니다!");
 
-            // (나중에 여기에 데미지 계산, HP 감소, 사망 처리 로직을 추가합니다.)
+            target.TakeDamage(attacker.attackDamage);
 
             attacker.hasActedThisTurn = true;
             DeselectCharacter();
@@ -132,28 +160,31 @@ namespace finished3
         private void SelectCharacter(CharacterInfo character)
         {
             if (isMoving) return;
-            DeselectCharacter(); // 이전 선택을 깔끔하게 정리
+            DeselectCharacter();
 
             selectedCharacter = character;
 
-            // 1. 순수 공격 범위 계산
-            int totalRange = character.movementRange + character.attackRange;
-            attackRangeTiles = rangeFinder.GetTilesInPureRange(character.standingOnTile.grid2DLocation, totalRange);
-
-            // 2. 길찾기 이동 범위 계산
+            // 1. 실제 이동 가능 범위(파란색)를 먼저 계산합니다.
             rangeFinderTiles = rangeFinder.GetTilesInRange(character.standingOnTile.grid2DLocation, character.movementRange);
 
-            // 3. 범위 시각화
-            foreach (var tile in attackRangeTiles)
+            // 2. 이동+공격의 최대 범위(빨간색)를 계산합니다.
+            int totalRange = character.movementRange + character.attackRange;
+            // attackRangeTiles는 이제 순수 공격 범위만을 담게 됩니다.
+            attackRangeTiles = rangeFinder.GetTilesInPureRange(character.standingOnTile.grid2DLocation, totalRange);
+
+            // 3. 최대 범위에서 이동 범위를 제외한 부분만 빨간색으로 표시합니다.
+            // LINQ의 Except를 사용하여 차집합을 구합니다.
+            foreach (var tile in attackRangeTiles.Except(rangeFinderTiles))
             {
                 if (tile == character.standingOnTile) continue;
-                tile.ShowAsAttackable(); // 먼저 모든 공격 범위를 빨간색으로 칠함
+                tile.ShowAsAttackable();
             }
 
+            // 4. 이동 가능 범위는 파란색으로 표시합니다.
             foreach (var tile in rangeFinderTiles)
             {
                 if (tile == character.standingOnTile) continue;
-                tile.ShowTile(); // 이동 가능한 곳을 청록색으로 덧칠함
+                tile.ShowTile();
             }
         }
 
@@ -172,8 +203,18 @@ namespace finished3
             if (path.Count == 0)
             {
                 isMoving = false;
-                selectedCharacter.hasActedThisTurn = true;
-                selectedCharacter = null;
+
+                // 이동이 끝났고, 공격할 대상이 있다면 공격 실행
+                if (targetToAttack != null)
+                {
+                    PerformAttack(selectedCharacter, targetToAttack);
+                    targetToAttack = null; // 공격 후 타겟 정보 초기화
+                }
+                else // 단순 이동이었을 경우
+                {
+                    selectedCharacter.hasActedThisTurn = true;
+                    selectedCharacter = null;
+                }
             }
         }
 
