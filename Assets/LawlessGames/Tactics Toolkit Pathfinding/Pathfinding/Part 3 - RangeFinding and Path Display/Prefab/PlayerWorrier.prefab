@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3081242750878082901}
   - component: {fileID: -2404139133259693468}
   m_Layer: 0
-  m_Name: Character
+  m_Name: PlayerWorrier
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -25,12 +25,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6688883963585979011}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &3081242750878082901
 SpriteRenderer:
@@ -43,11 +44,15 @@ SpriteRenderer:
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -96,3 +101,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   standingOnTile: {fileID: 0}
+  faction: 0
+  movementRange: 4
+  attackRange: 1
+  health: 100
+  maxHealth: 100
+  attackDamage: 25
+  hasActedThisTurn: 0

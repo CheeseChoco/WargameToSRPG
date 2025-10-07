@@ -9,21 +9,22 @@ namespace finished3
         Neutral
     }
 
-    public class CharacterInfo : MonoBehaviour
+    public class UnitInfo : MonoBehaviour
     {
         public OverlayTile standingOnTile;
         public Faction faction;
 
         [Header("능력치 설정")]
-        public int movementRange = 4;
-        public int attackRange = 1;
+        public int movementRange;
+        public int attackRange;
 
         // --- [추가] ---
-        public int health = 100;
-        public int maxHealth = 100;
-        public int attackDamage = 25;
+        public int health;
+        public int maxHealth;
+        public int attackDamage;
         // --- [추가 끝] ---
 
+        public bool hasMovedThisTurn = false;
         public bool hasActedThisTurn = false;
 
         // --- [추가] 데미지를 받는 함수 ---
@@ -46,11 +47,10 @@ namespace finished3
             // 타일에서 캐릭터 정보 제거
             if (standingOnTile != null)
             {
-                standingOnTile.characterOnTile = null;
+                standingOnTile.unitOnTile = null;
             }
+            GameManager.Instance.OnUnitDied(this);
 
-            // GameManager에게 사망 사실 알리기 (나중에 구현)
-            // GameManager.Instance.OnCharacterDied(this);
 
             // 게임 오브젝트 파괴
             Destroy(gameObject);

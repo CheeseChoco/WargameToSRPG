@@ -34,7 +34,7 @@ namespace finished3
                         if (visited.Contains(neighbour)) { continue; }
                         visited.Add(neighbour);
 
-                        if (neighbour.isBlocked || neighbour.characterOnTile != null) { continue; }
+                        if (neighbour.isBlocked || neighbour.unitOnTile != null) { continue; }
 
                         distance.Add(neighbour, distance[currentTile] + 1);
                         queue.Enqueue(neighbour);

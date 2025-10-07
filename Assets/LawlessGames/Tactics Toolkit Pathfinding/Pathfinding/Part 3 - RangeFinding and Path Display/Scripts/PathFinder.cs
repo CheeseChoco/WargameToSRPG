@@ -41,7 +41,7 @@ namespace finished3
 
                 foreach (var tile in GetNeightbourOverlayTiles(currentOverlayTile, searchableTiles))
                 {
-                    if ((tile.characterOnTile != null && tile != end) || tile.isBlocked || closedList.Contains(tile))
+                    if ((tile.unitOnTile != null && tile != end) || tile.isBlocked || closedList.Contains(tile))
                     {
                         continue;
                     }

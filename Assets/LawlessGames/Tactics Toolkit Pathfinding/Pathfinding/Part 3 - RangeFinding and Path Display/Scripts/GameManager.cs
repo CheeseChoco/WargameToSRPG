@@ -15,6 +15,7 @@ namespace finished3
         public GameObject actionButton;
         public TextMeshProUGUI actionButtonText;
 
+        private UnitInfo activeCharacter; // 현재 행동 중인 캐릭터 (플레이어)
         [Header("캐릭터 생성 설정")]
         public List<GameObject> characterPrefabs;
         // --- [추가] 적 캐릭터 프리팹을 담을 리스트 ---
@@ -24,15 +25,17 @@ namespace finished3
         [Header("스테이지 설정")]
         public List<Vector2Int> enemySpawnCoordinates;
 
-        public List<CharacterInfo> playerCharacters { get; private set; }
+        public List<UnitInfo> playerCharacters { get; private set; }
         // --- [추가] 생성된 적 캐릭터들을 관리할 리스트 ---
-        public List<CharacterInfo> enemyCharacters { get; private set; }
+        public List<UnitInfo> enemyCharacters { get; private set; }
         public List<OverlayTile> placementAreaTiles { get; private set; }
 
         public enum GamePhase { CharacterPlacement, PlayerTurn, EnemyTurn }
         public GamePhase currentPhase { get; private set; }
 
         private MouseController mouseController;
+        private UnitAction unitAction;
+        private int actionCount;
 
         private void Awake()
         {
@@ -43,15 +46,17 @@ namespace finished3
             else
             {
                 Instance = this;
-                playerCharacters = new List<CharacterInfo>();
+                playerCharacters = new List<UnitInfo>();
                 placementAreaTiles = new List<OverlayTile>();
 
-                enemyCharacters = new List<CharacterInfo>();
-            }
+                enemyCharacters = new List<UnitInfo>();
+				unitAction = gameObject.AddComponent<UnitAction>();
+			}
         }
 
         private void Start()
         {
+
             mouseController = FindFirstObjectByType<MouseController>();
 
             InitializePlacementArea();
@@ -117,7 +122,7 @@ namespace finished3
                 character.hasActedThisTurn = false;
             }
 
-            if (actionButton != null)
+            if (actionButton != null && actionCount == 0)
             {
                 actionButton.SetActive(true);
                 // korean: [수정됨] 텍스트를 한글에서 영어로 변경했습니다.
@@ -127,6 +132,30 @@ namespace finished3
 
         private IEnumerator EnemyTurnRoutine()
         {
+            Debug.Log("페이즈: 적 턴");
+            // 플레이어 입력 방지 (예: MouseController 비활성화)
+            // FindObjectOfType<MouseController>().enabled = false;
+
+            // 모든 적 유닛이 행동
+            foreach (var enemy in enemyCharacters.ToList())
+            {
+                // 캐릭터가 살아있고 활성화 상태인지 확인
+                if (enemy.gameObject.activeSelf)
+                {
+                    // enemy가 null이 아닌지 한번 더 체크해주면 더욱 안전합니다.
+                    if (enemy != null)
+                    {
+                        yield return StartCoroutine(enemy.GetComponent<EnemyAI>().ProcessTurn());
+                        yield return new WaitForSeconds(1f);
+                    }
+                }
+            }
+
+            // 모든 적의 행동이 끝나면 다시 플레이어 턴으로 전환
+            currentPhase = GamePhase.PlayerTurn;
+            Debug.Log("페이즈: 플레이어 턴");
+            // 플레이어 입력 허용 (예: MouseController 다시 활성화)
+            // FindObjectOfType<MouseController>().enabled = true;
             yield return new WaitForSeconds(1.0f);
             StartPlayerTurn();
         }
@@ -154,17 +183,17 @@ namespace finished3
 
         private void SpawnInitialCharacters()
         {
-            List<OverlayTile> availableSpawnTiles = placementAreaTiles.Where(t => t.characterOnTile == null).ToList();
+            List<OverlayTile> availableSpawnTiles = placementAreaTiles.Where(t => t.unitOnTile == null).ToList();
             for (int i = 0; i < characterPrefabs.Count; i++)
             {
                 if (i >= availableSpawnTiles.Count) { break; }
                 GameObject charInstance = Instantiate(characterPrefabs[i]);
-                CharacterInfo characterInfo = charInstance.GetComponent<CharacterInfo>();
-                characterInfo.faction = Faction.Player;
+                UnitInfo UnitInfo = charInstance.GetComponent<UnitInfo>();
+                UnitInfo.faction = Faction.Player;
                 OverlayTile spawnTile = availableSpawnTiles[i];
 
-                mouseController.PositionCharacterOnTile(characterInfo, spawnTile);
-                playerCharacters.Add(characterInfo);
+                mouseController.PositionunitOnTile(UnitInfo, spawnTile);
+                playerCharacters.Add(UnitInfo);
             }
         }
 
@@ -191,15 +220,15 @@ namespace finished3
                 OverlayTile tile = MapManager.Instance.GetTileAt(spawnPos);
 
                 // 2. 해당 좌표에 타일이 있고, 비어있는지 확인합니다.
-                if (tile != null && tile.characterOnTile == null)
+                if (tile != null && tile.unitOnTile == null)
                 {
                     // 3. 적 프리팹을 생성하고 배치합니다.
                     GameObject charInstance = Instantiate(enemyPrefabs[i]);
-                    CharacterInfo characterInfo = charInstance.GetComponent<CharacterInfo>();
-                    characterInfo.faction = Faction.Enemy;
+                    UnitInfo UnitInfo = charInstance.GetComponent<UnitInfo>();
+                    UnitInfo.faction = Faction.Enemy;
 
-                    mouseController.PositionCharacterOnTile(characterInfo, tile);
-                    enemyCharacters.Add(characterInfo);
+                    mouseController.PositionunitOnTile(UnitInfo, tile);
+                    enemyCharacters.Add(UnitInfo);
                 }
                 else
                 {
@@ -207,6 +236,39 @@ namespace finished3
                 }
             }
         }
-    }
+        public void OnUnitDied(UnitInfo deadUnit)
+        {
+            if (deadUnit.faction == Faction.Player)
+            {
+                playerCharacters.Remove(deadUnit);
+            }
+            else if (deadUnit.faction == Faction.Enemy)
+            {
+                enemyCharacters.Remove(deadUnit);
+            }
+        }
+
+        public void UnitMove(UnitInfo unit, OverlayTile tile, List<OverlayTile> rangeTiles)
+		{
+            actionCount++;
+            unitAction.UnitMove(unit, tile, rangeTiles, () =>
+            {
+                unit.hasMovedThisTurn = true;
+                actionCount--;
+
+			});  
+        }
+
+        public void UnitMoveNAttack(UnitInfo unit, OverlayTile tile, List<OverlayTile> rangeTiles)
+        {
+			actionCount++;
+			unitAction.UnitMoveNAttack(unit, tile, rangeTiles, () =>
+			{
+				unit.hasMovedThisTurn = true;
+				actionCount--;
+			});
+		}
+
+	}
 }
 

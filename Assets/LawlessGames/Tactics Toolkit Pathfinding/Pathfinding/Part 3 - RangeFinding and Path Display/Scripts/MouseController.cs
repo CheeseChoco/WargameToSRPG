@@ -11,18 +11,18 @@ namespace finished3
         public GameObject cursor;
         public float speed;
 
-        private CharacterInfo selectedCharacter;
+        private UnitInfo selectedCharacter;
         // --- [추가] 이동 후 공격할 대상을 저장하기 위한 변수 ---
-        private CharacterInfo targetToAttack;
+        private UnitInfo targetToAttack;
 
         private PathFinder pathFinder;
         private RangeFinder rangeFinder;
         private ArrowTranslator arrowTranslator;
 
-        private List<OverlayTile> path = new List<OverlayTile>();
-        private List<OverlayTile> rangeFinderTiles = new List<OverlayTile>();
+        private List<OverlayTile> moveAbleTiles = new List<OverlayTile>();
         // korean: [추가됨] 공격 가능 범위 타일을 저장하기 위한 리스트입니다.
         private List<OverlayTile> attackRangeTiles = new List<OverlayTile>();
+        private HashSet<OverlayTile> allAttackRangeTiles = new HashSet<OverlayTile>();
 
         private bool isMoving = false;
 
@@ -36,11 +36,6 @@ namespace finished3
 
         void LateUpdate()
         {
-            if (path.Count > 0 && isMoving)
-            {
-                MoveAlongPath();
-                return;
-            }
 
             RaycastHit2D? hit = GetFocusedOnTile();
             if (!hit.HasValue) return;
@@ -62,19 +57,19 @@ namespace finished3
             {
                 if (selectedCharacter == null)
                 {
-                    if (focusedTile.characterOnTile != null && focusedTile.characterOnTile.faction == Faction.Player)
+                    if (focusedTile.unitOnTile != null && focusedTile.unitOnTile.faction == Faction.Player)
                     {
-                        selectedCharacter = focusedTile.characterOnTile;
+                        selectedCharacter = focusedTile.unitOnTile;
                     }
                 }
                 else
                 {
-                    if (GameManager.Instance.placementAreaTiles.Contains(focusedTile) && focusedTile.characterOnTile == null)
+                    if (GameManager.Instance.placementAreaTiles.Contains(focusedTile) && focusedTile.unitOnTile == null)
                     {
-                        PositionCharacterOnTile(selectedCharacter, focusedTile);
+                        PositionunitOnTile(selectedCharacter, focusedTile);
                         selectedCharacter = null;
                     }
-                    else if (focusedTile.characterOnTile == selectedCharacter)
+                    else if (focusedTile.unitOnTile == selectedCharacter)
                     {
                         selectedCharacter = null;
                     }
@@ -84,9 +79,9 @@ namespace finished3
 
         private void HandlePlayerTurnPhase(OverlayTile focusedTile)
         {
-            if (selectedCharacter != null && rangeFinderTiles.Contains(focusedTile))
+            if (selectedCharacter != null && moveAbleTiles.Contains(focusedTile))
             {
-                var previewPath = pathFinder.FindPath(selectedCharacter.standingOnTile, focusedTile, rangeFinderTiles);
+                var previewPath = pathFinder.FindPath(selectedCharacter.standingOnTile, focusedTile, moveAbleTiles);
                 ShowPathArrows(previewPath);
             }
             else
@@ -97,137 +92,73 @@ namespace finished3
             if (Input.GetMouseButtonDown(0))
             {
                 // 1. 아군 유닛 선택
-                if (focusedTile.characterOnTile != null && focusedTile.characterOnTile.faction == Faction.Player)
+                if (focusedTile.unitOnTile != null && focusedTile.unitOnTile.faction == Faction.Player)
                 {
-                    if (!focusedTile.characterOnTile.hasActedThisTurn)
+                    if (!focusedTile.unitOnTile.hasActedThisTurn)
                     {
-                        SelectCharacter(focusedTile.characterOnTile);
+                        SelectCharacter(focusedTile.unitOnTile);
                     }
                 }
                 else if (selectedCharacter != null)
                 {
-                    var targetCharacter = focusedTile.characterOnTile;
+                    var targetCharacter = focusedTile.unitOnTile;
 
                     // 2. 적군 유닛 '이동 후 공격'
-                    if (targetCharacter != null && targetCharacter.faction != Faction.Player)
+                    if (targetCharacter != null && targetCharacter.faction != Faction.Player && allAttackRangeTiles.Contains(targetCharacter.standingOnTile))
                     {
-                        // 공격 가능한 모든 타일 찾기 (적 주변)
-                        var attackableTiles = rangeFinder.GetTilesInPureRange(targetCharacter.standingOnTile.grid2DLocation, selectedCharacter.attackRange);
-
-                        // 이동 가능한 타일과 공격 가능한 타일의 교집합 찾기
-                        var reachableAttackTiles = rangeFinderTiles.Intersect(attackableTiles).ToList();
-
-                        if (reachableAttackTiles.Count > 0)
-                        {
-                            // 가장 가까운 공격 위치 찾기
-                            OverlayTile bestTile = reachableAttackTiles.OrderBy(t => Vector2Int.Distance(t.grid2DLocation, selectedCharacter.standingOnTile.grid2DLocation)).First();
-
-                            path = pathFinder.FindPath(selectedCharacter.standingOnTile, bestTile, rangeFinderTiles);
-                            targetToAttack = targetCharacter; // 공격 대상 저장
-                            isMoving = true;
-                            HideRangeAndPath();
-                        }
-                        else
-                        {
-                            Debug.Log("공격할 수 있는 위치로 이동할 수 없습니다.");
-                        }
+                        GameManager.Instance.UnitMoveNAttack(selectedCharacter, focusedTile, moveAbleTiles);
                     }
                     // 3. 빈 타일로 이동
-                    else if (rangeFinderTiles.Contains(focusedTile))
+                    else if (moveAbleTiles.Contains(focusedTile))
                     {
-                        path = pathFinder.FindPath(selectedCharacter.standingOnTile, focusedTile, rangeFinderTiles);
-                        if (path.Count > 0)
-                        {
-                            isMoving = true;
-                            HideRangeAndPath();
-                        }
+                        GameManager.Instance.UnitMove(selectedCharacter, focusedTile, moveAbleTiles);
                     }
+                    HideRangeAndPath();
                 }
             }
         }
 
-        // korean: [추가됨] 공격을 실행하는 함수입니다.
-        private void PerformAttack(CharacterInfo attacker, CharacterInfo target)
-        {
-            Debug.Log(attacker.name + "가 " + target.name + "을(를) 공격합니다!");
-
-            target.TakeDamage(attacker.attackDamage);
-
-            attacker.hasActedThisTurn = true;
-            DeselectCharacter();
-        }
-
-        private void SelectCharacter(CharacterInfo character)
+        private void SelectCharacter(UnitInfo unit)
         {
             if (isMoving) return;
             DeselectCharacter();
 
-            selectedCharacter = character;
+            selectedCharacter = unit;
 
-            // 1. 실제 이동 가능 범위(파란색)를 먼저 계산합니다.
-            rangeFinderTiles = rangeFinder.GetTilesInRange(character.standingOnTile.grid2DLocation, character.movementRange);
-
-            // 2. 이동+공격의 최대 범위(빨간색)를 계산합니다.
-            int totalRange = character.movementRange + character.attackRange;
-            // attackRangeTiles는 이제 순수 공격 범위만을 담게 됩니다.
-            attackRangeTiles = rangeFinder.GetTilesInPureRange(character.standingOnTile.grid2DLocation, totalRange);
-
-            // 3. 최대 범위에서 이동 범위를 제외한 부분만 빨간색으로 표시합니다.
-            // LINQ의 Except를 사용하여 차집합을 구합니다.
-            foreach (var tile in attackRangeTiles.Except(rangeFinderTiles))
+            moveAbleTiles = rangeFinder.GetTilesInRange(unit.standingOnTile.grid2DLocation, unit.movementRange);
+            allAttackRangeTiles.Clear();
+            foreach (var tile in moveAbleTiles)
             {
-                if (tile == character.standingOnTile) continue;
+                var tempTiles = rangeFinder.GetTilesInPureRange(tile.grid2DLocation, unit.attackRange);
+                allAttackRangeTiles.UnionWith(tempTiles);
+            }
+            attackRangeTiles = allAttackRangeTiles.Except(moveAbleTiles).ToList();
+
+
+            foreach (var tile in attackRangeTiles)
+            {
+                if (tile == unit.standingOnTile) continue;
                 tile.ShowAsAttackable();
             }
 
-            // 4. 이동 가능 범위는 파란색으로 표시합니다.
-            foreach (var tile in rangeFinderTiles)
+            foreach (var tile in moveAbleTiles)
             {
-                if (tile == character.standingOnTile) continue;
+                if (tile == unit.standingOnTile) continue;
                 tile.ShowTile();
             }
         }
 
-        private void MoveAlongPath()
-        {
-            var step = speed * Time.deltaTime;
-            var targetPosition = new Vector3(path[0].transform.position.x, path[0].transform.position.y + 0.0001f, path[0].transform.position.z);
-            selectedCharacter.transform.position = Vector3.MoveTowards(selectedCharacter.transform.position, targetPosition, step);
 
-            if (Vector3.Distance(selectedCharacter.transform.position, targetPosition) < 0.0001f)
-            {
-                PositionCharacterOnTile(selectedCharacter, path[0]);
-                path.RemoveAt(0);
-            }
-
-            if (path.Count == 0)
-            {
-                isMoving = false;
-
-                // 이동이 끝났고, 공격할 대상이 있다면 공격 실행
-                if (targetToAttack != null)
-                {
-                    PerformAttack(selectedCharacter, targetToAttack);
-                    targetToAttack = null; // 공격 후 타겟 정보 초기화
-                }
-                else // 단순 이동이었을 경우
-                {
-                    selectedCharacter.hasActedThisTurn = true;
-                    selectedCharacter = null;
-                }
-            }
-        }
-
-        public void PositionCharacterOnTile(CharacterInfo character, OverlayTile newTile)
+        public void PositionunitOnTile(UnitInfo character, OverlayTile newTile)
         {
             if (character.standingOnTile != null)
             {
-                character.standingOnTile.characterOnTile = null;
+                character.standingOnTile.unitOnTile = null;
             }
             character.transform.position = new Vector3(newTile.transform.position.x, newTile.transform.position.y + 0.0001f, newTile.transform.position.z);
             character.GetComponent<SpriteRenderer>().sortingOrder = newTile.GetComponent<SpriteRenderer>().sortingOrder;
             character.standingOnTile = newTile;
-            newTile.characterOnTile = character;
+            newTile.unitOnTile = character;
         }
 
         private void UpdateCursorPosition(OverlayTile tile)
@@ -250,7 +181,7 @@ namespace finished3
 
         private void ShowPathArrows(List<OverlayTile> pathToDisplay)
         {
-            foreach (var item in rangeFinderTiles)
+            foreach (var item in moveAbleTiles)
             {
                 item.SetSprite(ArrowDirection.None);
             }
@@ -273,12 +204,12 @@ namespace finished3
             {
                 tile.ResetColor();
             }
-            foreach (var tile in rangeFinderTiles)
+            foreach (var tile in moveAbleTiles)
             {
                 tile.ResetColor();
                 tile.SetSprite(ArrowDirection.None);
             }
-            rangeFinderTiles.Clear();
+            moveAbleTiles.Clear();
             attackRangeTiles.Clear();
         }
 
