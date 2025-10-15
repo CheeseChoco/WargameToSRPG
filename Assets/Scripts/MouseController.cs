@@ -60,7 +60,7 @@ namespace finished3
                     if (focusedTile.unitOnTile != null && focusedTile.unitOnTile.faction == Faction.Player)
                     {
                         selectedCharacter = focusedTile.unitOnTile;
-                    }
+                    } 
                 }
                 else
                 {
@@ -106,6 +106,7 @@ namespace finished3
                     // 2. 적군 유닛 '이동 후 공격'
                     if (targetCharacter != null && targetCharacter.faction != Faction.Player && allAttackRangeTiles.Contains(targetCharacter.standingOnTile))
                     {
+                        //Debug.Log("공격 클릭");
                         GameManager.Instance.UnitMoveNAttack(selectedCharacter, focusedTile, moveAbleTiles);
                     }
                     // 3. 빈 타일로 이동

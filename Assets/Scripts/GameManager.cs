@@ -18,17 +18,14 @@ namespace finished3
         private UnitInfo activeCharacter; // 현재 행동 중인 캐릭터 (플레이어)
         [Header("캐릭터 생성 설정")]
         public List<GameObject> characterPrefabs;
-        // --- [추가] 적 캐릭터 프리팹을 담을 리스트 ---
-        public List<GameObject> enemyPrefabs;
 
-        // --- [추가] 적 스폰 위치를 좌표로 직접 관리합니다. ---
-        [Header("스테이지 설정")]
-        public List<Vector2Int> enemySpawnCoordinates;
 
         public List<UnitInfo> playerCharacters { get; private set; }
         // --- [추가] 생성된 적 캐릭터들을 관리할 리스트 ---
-        public List<UnitInfo> enemyCharacters { get; private set; }
-        public List<OverlayTile> placementAreaTiles { get; private set; }
+        private List<UnitInfo> enemyCharacters;
+        public List<OverlayTile> placementAreaTiles;
+        
+        public int stageId = 1;
 
         public enum GamePhase { CharacterPlacement, PlayerTurn, EnemyTurn }
         public GamePhase currentPhase { get; private set; }
@@ -125,7 +122,6 @@ namespace finished3
             if (actionButton != null && actionCount == 0)
             {
                 actionButton.SetActive(true);
-                // korean: [수정됨] 텍스트를 한글에서 영어로 변경했습니다.
                 actionButtonText.text = "Turn End";
             }
         }
@@ -200,30 +196,31 @@ namespace finished3
         // --- [추가] 적 캐릭터들을 스폰하는 함수 ---
         private void SpawnInitialEnemies()
         {
-            if (enemySpawnCoordinates.Count == 0)
+            List<EnemySpawnData> enemySpawnDatas = StageManager.Instance.GetEnemySpawnData(stageId);
+            if (enemySpawnDatas.Count == 0)
             {
                 Debug.LogWarning("GameManager에 설정된 적 스폰 좌표가 없습니다.");
                 return;
             }
 
             // 1. 설정된 좌표 리스트를 순회합니다.
-            for (int i = 0; i < enemySpawnCoordinates.Count; i++)
+            for (int i = 0; i < enemySpawnDatas.Count; i++)
             {
                 // 생성할 적 프리팹이 부족하면 중단합니다.
-                if (i >= enemyPrefabs.Count)
+                if (i >= enemySpawnDatas.Count)
                 {
                     Debug.LogWarning("스폰 좌표보다 설정된 적 프리팹 수가 부족합니다.");
                     break;
                 }
 
-                Vector2Int spawnPos = enemySpawnCoordinates[i];
+                Vector2Int spawnPos = enemySpawnDatas[i].spawnPosition;
                 OverlayTile tile = MapManager.Instance.GetTileAt(spawnPos);
 
                 // 2. 해당 좌표에 타일이 있고, 비어있는지 확인합니다.
                 if (tile != null && tile.unitOnTile == null)
                 {
                     // 3. 적 프리팹을 생성하고 배치합니다.
-                    GameObject charInstance = Instantiate(enemyPrefabs[i]);
+                    GameObject charInstance = Instantiate(enemySpawnDatas[i].enemyPrefab);
                     UnitInfo UnitInfo = charInstance.GetComponent<UnitInfo>();
                     UnitInfo.faction = Faction.Enemy;
 
@@ -261,7 +258,8 @@ namespace finished3
 
         public void UnitMoveNAttack(UnitInfo unit, OverlayTile tile, List<OverlayTile> rangeTiles)
         {
-			actionCount++;
+            //Debug.Log("게임매니저 공격 시작");
+            actionCount++;
 			unitAction.UnitMoveNAttack(unit, tile, rangeTiles, () =>
 			{
 				unit.hasMovedThisTurn = true;

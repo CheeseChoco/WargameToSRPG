@@ -7,14 +7,13 @@ using UnityEngine;
 
 public class UnitAction : MonoBehaviour
 {
-    public float speed; //유닛의 이동 속도
+    public float speed = 5; //유닛의 이동 속도
 
 
     private PathFinder pathFinder;
     private RangeFinder rangeFinder;
     private List<OverlayTile> path = new List<OverlayTile>();
     private List<OverlayTile> rangeTiles = new List<OverlayTile>();
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
         pathFinder = new PathFinder();
@@ -32,10 +31,9 @@ public class UnitAction : MonoBehaviour
     public void UnitMoveNAttack(UnitInfo unit, OverlayTile tile, List<OverlayTile> rangeTiles, Action callback)
     {
 
-        // 공격 가능한 모든 타일 찾기 (적 주변)
+        //Debug.Log("UnitAction 공격 시작");
         var attackableTiles = rangeFinder.GetTilesInPureRange(tile.unitOnTile.standingOnTile.grid2DLocation, unit.attackRange);
 
-        // 이동 가능한 타일과 공격 가능한 타일의 교집합 찾기
         var reachableAttackTiles = rangeTiles.Intersect(attackableTiles).ToList();
 
         OverlayTile bestTile = reachableAttackTiles.OrderBy(t => Vector2Int.Distance(t.grid2DLocation, unit.standingOnTile.grid2DLocation)).First();
@@ -47,6 +45,8 @@ public class UnitAction : MonoBehaviour
     // 이동 코드, 공격 x
     private IEnumerator MoveCoroutine(UnitInfo unit, UnitInfo target, Action callback)
     {
+
+        //Debug.Log("행동 코루틴 시작");
         foreach (var tile in path)
         {
             var targetPosition = new Vector3(tile.transform.position.x, tile.transform.position.y + 0.0001f, tile.transform.position.z);
