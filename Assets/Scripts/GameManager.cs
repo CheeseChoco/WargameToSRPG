@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 namespace finished3
 {
@@ -34,6 +35,10 @@ namespace finished3
         private UnitAction unitAction;
         private int actionCount;
 
+        [Header("승리 UI")]
+        public TextMeshProUGUI winText;
+        private bool isGameWon = false;
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -48,6 +53,7 @@ namespace finished3
 
                 enemyCharacters = new List<UnitInfo>();
 				unitAction = gameObject.AddComponent<UnitAction>();
+                stageId = GameDataHolder.SelectedStageNum;
 			}
         }
 
@@ -66,6 +72,14 @@ namespace finished3
                 actionButton.SetActive(true);
                 // korean: [수정됨] 텍스트를 한글에서 영어로 변경했습니다.
                 actionButtonText.text = "End Placement";
+            }
+        }
+
+        private void Update()
+        {
+            if(isGameWon && Input.GetMouseButtonDown(0))
+            {
+                SceneManager.LoadScene("MainMenu");
             }
         }
 
@@ -106,6 +120,7 @@ namespace finished3
             if (actionButton != null)
                 actionButton.SetActive(false);
 
+
             StartCoroutine(EnemyTurnRoutine());
         }
 
@@ -116,6 +131,7 @@ namespace finished3
 
             foreach (var character in playerCharacters)
             {
+                character.hasMovedThisTurn = false;
                 character.hasActedThisTurn = false;
             }
 
@@ -129,8 +145,6 @@ namespace finished3
         private IEnumerator EnemyTurnRoutine()
         {
             Debug.Log("페이즈: 적 턴");
-            // 플레이어 입력 방지 (예: MouseController 비활성화)
-            // FindObjectOfType<MouseController>().enabled = false;
 
             // 모든 적 유닛이 행동
             foreach (var enemy in enemyCharacters.ToList())
@@ -242,6 +256,12 @@ namespace finished3
             else if (deadUnit.faction == Faction.Enemy)
             {
                 enemyCharacters.Remove(deadUnit);
+
+                if (enemyCharacters.Count == 0)
+                {
+                    winText.gameObject.SetActive(true);
+                    isGameWon = true;
+                }
             }
         }
 
@@ -262,10 +282,16 @@ namespace finished3
             actionCount++;
 			unitAction.UnitMoveNAttack(unit, tile, rangeTiles, () =>
 			{
-				unit.hasMovedThisTurn = true;
+				unit.hasActedThisTurn = true;
 				actionCount--;
 			});
 		}
+
+        public void UnitAttack(UnitInfo unit, OverlayTile tile)
+        {
+            unit.hasActedThisTurn = true;
+            unitAction.UnitAttack(unit, tile);
+        }
 
 	}
 }

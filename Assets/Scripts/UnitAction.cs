@@ -42,6 +42,11 @@ public class UnitAction : MonoBehaviour
         StartCoroutine(MoveCoroutine(unit, tile.unitOnTile , callback));
     }
 
+    public void UnitAttack(UnitInfo unit, OverlayTile tile)
+    {
+        Attack(unit, tile.unitOnTile);
+    }
+
     // 이동 코드, 공격 x
     private IEnumerator MoveCoroutine(UnitInfo unit, UnitInfo target, Action callback)
     {

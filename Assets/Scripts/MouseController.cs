@@ -12,8 +12,6 @@ namespace finished3
         public float speed;
 
         private UnitInfo selectedCharacter;
-        // --- [추가] 이동 후 공격할 대상을 저장하기 위한 변수 ---
-        private UnitInfo targetToAttack;
 
         private PathFinder pathFinder;
         private RangeFinder rangeFinder;
@@ -91,7 +89,6 @@ namespace finished3
 
             if (Input.GetMouseButtonDown(0))
             {
-                // 1. 아군 유닛 선택
                 if (focusedTile.unitOnTile != null && focusedTile.unitOnTile.faction == Faction.Player)
                 {
                     if (!focusedTile.unitOnTile.hasActedThisTurn)
@@ -103,13 +100,18 @@ namespace finished3
                 {
                     var targetCharacter = focusedTile.unitOnTile;
 
-                    // 2. 적군 유닛 '이동 후 공격'
                     if (targetCharacter != null && targetCharacter.faction != Faction.Player && allAttackRangeTiles.Contains(targetCharacter.standingOnTile))
                     {
-                        //Debug.Log("공격 클릭");
-                        GameManager.Instance.UnitMoveNAttack(selectedCharacter, focusedTile, moveAbleTiles);
+                        if (selectedCharacter.hasMovedThisTurn)
+                        {
+                            GameManager.Instance.UnitAttack(selectedCharacter, focusedTile);
+                        }
+                        else
+                        {
+                            //Debug.Log("공격 클릭");
+                            GameManager.Instance.UnitMoveNAttack(selectedCharacter, focusedTile, moveAbleTiles);
+                        }
                     }
-                    // 3. 빈 타일로 이동
                     else if (moveAbleTiles.Contains(focusedTile))
                     {
                         GameManager.Instance.UnitMove(selectedCharacter, focusedTile, moveAbleTiles);
@@ -125,15 +127,24 @@ namespace finished3
             DeselectCharacter();
 
             selectedCharacter = unit;
-
-            moveAbleTiles = rangeFinder.GetTilesInRange(unit.standingOnTile.grid2DLocation, unit.movementRange);
             allAttackRangeTiles.Clear();
-            foreach (var tile in moveAbleTiles)
+
+            if (!unit.hasMovedThisTurn)
             {
-                var tempTiles = rangeFinder.GetTilesInPureRange(tile.grid2DLocation, unit.attackRange);
-                allAttackRangeTiles.UnionWith(tempTiles);
+                moveAbleTiles = rangeFinder.GetTilesInRange(unit.standingOnTile.grid2DLocation, unit.movementRange);
+                foreach (var tile in moveAbleTiles)
+                {
+                    var tempTiles = rangeFinder.GetTilesInPureRange(tile.grid2DLocation, unit.attackRange);
+                    allAttackRangeTiles.UnionWith(tempTiles);
+                }
+                attackRangeTiles = allAttackRangeTiles.Except(moveAbleTiles).ToList();
             }
-            attackRangeTiles = allAttackRangeTiles.Except(moveAbleTiles).ToList();
+            else if (!unit.hasActedThisTurn)
+            {
+                attackRangeTiles = rangeFinder.GetTilesInPureRange(unit.standingOnTile.grid2DLocation, unit.attackRange);
+                allAttackRangeTiles.UnionWith(attackRangeTiles);
+            }
+
 
 
             foreach (var tile in attackRangeTiles)
