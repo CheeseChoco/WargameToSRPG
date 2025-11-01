@@ -12,6 +12,9 @@ namespace CheeseChoco.WargameToSRPG.UI
         [SerializeField] private GameObject recruitButtonPrefab; // UI_RecruitButton.cs가 부착된 버튼 프리팹
         [SerializeField] private Transform contentParent;      // ScrollView의 Content 객체
 
+        [Header("연결된 패널")]
+        [SerializeField] private RecruitDetailPanel detailPanel; // 상세 정보 패널
+
         // 테스트용 데이터. 실제로는 다른 곳(예: GameManager, DB)에서 받아옵니다.
         private List<RecruitData> testRecruitList = new List<RecruitData>();
 
@@ -26,11 +29,8 @@ namespace CheeseChoco.WargameToSRPG.UI
 
         private void CreateTestData()
         {
-            testRecruitList.Add(new RecruitData("recruit_001", "검사", "기본적인 근접 유닛입니다.", 100));
-            testRecruitList.Add(new RecruitData("recruit_002", "궁수", "원거리 공격 유닛입니다.", 120));
-            testRecruitList.Add(new RecruitData("recruit_003", "마법사", "광역 마법을 사용합니다.", 200));
-            testRecruitList.Add(new RecruitData("recruit_004", "성직자", "아군을 치유합니다.", 150));
-            testRecruitList.Add(new RecruitData("recruit_005", "창병", "방어력이 높습니다.", 130));
+            testRecruitList.Add(new RecruitData("recruit_001", "Warrior", "Melee Attack Unit.", 100));
+            testRecruitList.Add(new RecruitData("recruit_002", "Ranger", "Range Attack Unit.", 120));
         }
 
         /// <summary>
@@ -54,16 +54,17 @@ namespace CheeseChoco.WargameToSRPG.UI
             // 리스트의 모든 데이터에 대해 버튼 생성
             foreach (RecruitData data in testRecruitList)
             {
-                // 프리팹 인스턴스화
                 GameObject buttonInstance = Instantiate(recruitButtonPrefab, contentParent);
-
-                // 버튼 스크립트 가져오기
                 RecruitButton recruitButton = buttonInstance.GetComponent<RecruitButton>();
 
                 if (recruitButton != null)
                 {
                     // 버튼 설정 (데이터와 콜백 함수 전달)
-                    recruitButton.Setup(data, OnRecruitButtonClicked);
+                    recruitButton.Setup(data,
+                        OnRecruitButtonHovered,     // 마우스 올렸을 때
+                        OnRecruitButtonHoverExit,   // 마우스 나갔을 때
+                        OnRecruitButtonSelected     // 클릭했을 때
+                    );
                 }
                 else
                 {
@@ -76,12 +77,35 @@ namespace CheeseChoco.WargameToSRPG.UI
         /// 리스트의 버튼이 클릭되었을 때 호출될 콜백 함수입니다.
         /// </summary>
         /// <param name="selectedData">선택된 버튼의 데이터</param>
-        private void OnRecruitButtonClicked(RecruitData selectedData)
+        private void OnRecruitButtonHovered(RecruitData selectedData)
         {
-            Debug.Log($"선택됨: {selectedData.unitName} (ID: {selectedData.unitID})");
+            if (detailPanel != null)
+            {
+                detailPanel.ShowDetails(selectedData);
+            }
+        }
 
-            // TODO: 여기에 오른쪽 상세 정보 패널을 업데이트하는 로직을 추가합니다.
-            // 예: UI_RecruitDetailPanel.ShowDetails(selectedData);
+        private void OnRecruitButtonHoverExit()
+        {
+            if (detailPanel != null)
+            {
+                detailPanel.HideDetails();
+            }
+        }
+
+        private void OnRecruitButtonSelected(RecruitData selectedData)
+        {
+            Debug.Log($"부대 편입 시도: {selectedData.unitName} (ID: {selectedData.unitID})");
+
+            // TODO: 여기에 유닛을 부대에 편입하는 실제 로직을 구현합니다.
+            // 예: PlayerParty.Instance.AddUnit(selectedData);
+
+            // TODO: 비용 차감 로직
+            // 예: PlayerWallet.Instance.DeductGold(selectedData.cost);
+
+            // TODO: (선택적) 편입 후 버튼 비활성화 또는 리스트에서 제거
+            // 예: selectedData.isRecruited = true; 
+            //     (이후 PopulateList()를 다시 호출하거나 버튼의 UI 상태를 변경)
         }
     }
 }

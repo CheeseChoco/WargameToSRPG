@@ -149,6 +149,7 @@ GameObject:
   - component: {fileID: 7931796936701875378}
   - component: {fileID: 3230102072443098516}
   - component: {fileID: 7918833300566921700}
+  - component: {fileID: 7002960207026323843}
   m_Layer: 0
   m_Name: RecruitButton_Prefab
   m_TagString: Untagged
@@ -273,6 +274,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitNameText: {fileID: 2086399779153826069}
   costText: {fileID: 2604936785839461944}
+--- !u!114 &7002960207026323843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6879423270578739495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: 50
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &7689030252314726769
 GameObject:
   m_ObjectHideFlags: 0
@@ -365,8 +386,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 12
-  m_fontSizeBase: 12
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
