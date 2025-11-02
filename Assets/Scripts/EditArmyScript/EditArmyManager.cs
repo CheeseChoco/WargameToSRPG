@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System; // Action을 사용하기 위함
+using System;
+using UnityEngine.SceneManagement;
+using UnityEngine.Rendering;
+using TMPro;
 
 namespace CheeseChoco.WargameToSRPG.UI
 {
@@ -13,9 +16,12 @@ namespace CheeseChoco.WargameToSRPG.UI
         public static EditArmyManager Instance { get; private set; }
 
         [Header("부대 설정")]
-        public int maxPartySize = 6; // 부대 최대 인원
+        public int maxCost = 500; // 부대 최대 인원
+        public int currentCost = 0;
 
         private List<RecruitData> partyMembers = new List<RecruitData>();
+
+        public TextMeshPro armyName = new TextMeshPro();
 
         /// <summary>
         /// 부대 목록이 변경될 때마다 UI 스크립트에게 알리기 위한 이벤트입니다.
@@ -40,22 +46,16 @@ namespace CheeseChoco.WargameToSRPG.UI
         /// </summary>
         /// <returns>추가 성공 여부</returns>
         public bool AddUnit(RecruitData unit)
-        {
+        { 
             // 부대가 꽉 찼는지 확인
-            if (partyMembers.Count >= maxPartySize)
+            if (currentCost + unit.cost > maxCost)
             {
                 Debug.LogWarning("부대가 꽉 찼습니다. 유닛을 추가할 수 없습니다.");
                 // TODO: "부대가 꽉 찼습니다" UI 피드백
                 return false;
             }
+            currentCost += unit.cost;
 
-            // 이미 부대에 있는지 확인
-            if (partyMembers.Contains(unit))
-            {
-                Debug.LogWarning("이미 부대에 있는 유닛입니다.");
-                // TODO: "이미 있는 유닛입니다" UI 피드백
-                return false;
-            }
 
             partyMembers.Add(unit);
             OnPartyUpdated?.Invoke(); // 부대가 변경되었음을 모두에게 알림
@@ -69,6 +69,7 @@ namespace CheeseChoco.WargameToSRPG.UI
         {
             if (partyMembers.Remove(unit))
             {
+                currentCost -= unit.cost;
                 OnPartyUpdated?.Invoke(); // 부대가 변경되었음을 모두에게 알림
             }
         }
@@ -79,6 +80,26 @@ namespace CheeseChoco.WargameToSRPG.UI
         public List<RecruitData> GetPartyMembers()
         {
             return new List<RecruitData>(partyMembers); // 복사본 반환
+        }
+
+        public void OnClickSaveButton()
+        {
+            PlayerArmy saveArmy = new PlayerArmy();
+            
+            if(armyName.text != null)
+            {
+                saveArmy.armyName = armyName.text;
+            }
+            List<string> armyList = new List<string>(); 
+            foreach(var unit in partyMembers)
+            {
+                saveArmy.units.Add(new ArmyUnitEntry(unit.unitID));
+            }
+            saveArmy.totalCosts = currentCost;
+
+
+            SaveLoadService.SaveArmy(saveArmy);
+            SceneManager.LoadScene("SelectArmy");
         }
     }
 }

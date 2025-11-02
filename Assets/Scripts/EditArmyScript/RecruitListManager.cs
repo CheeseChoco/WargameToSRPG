@@ -97,6 +97,8 @@ namespace CheeseChoco.WargameToSRPG.UI
         {
             Debug.Log($"부대 편입 시도: {selectedData.unitName} (ID: {selectedData.unitID})");
 
+            EditArmyManager.Instance.AddUnit( selectedData );
+
             // TODO: 여기에 유닛을 부대에 편입하는 실제 로직을 구현합니다.
             // 예: PlayerParty.Instance.AddUnit(selectedData);
 

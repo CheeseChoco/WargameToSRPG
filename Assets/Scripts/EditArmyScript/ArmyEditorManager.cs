@@ -36,7 +36,7 @@ public class ArmyEditorManager : MonoBehaviour
     // [4] 유닛을 부대에 추가 (UI 버튼에서 호출)
     public void AddUnit(UnitSO unitToAdd)
     {
-        int newTotalPoints = currentArmy.totalPointsUsed + unitToAdd.pointCost;
+        int newTotalPoints = currentArmy.totalCosts + unitToAdd.pointCost;
 
         // 포인트 제한 체크
         if (newTotalPoints > maxArmyPoints)
@@ -46,7 +46,7 @@ public class ArmyEditorManager : MonoBehaviour
         }
 
         // 데이터 업데이트
-        currentArmy.totalPointsUsed = newTotalPoints;
+        currentArmy.totalCosts = newTotalPoints;
         currentArmy.units.Add(new ArmyUnitEntry(unitToAdd.unitID));
 
         // UI 갱신
@@ -69,7 +69,7 @@ public class ArmyEditorManager : MonoBehaviour
     {
         // (currentArmyListParent의 자식 UI들을 갱신)
 
-        pointsText.text = $"현재 포인트: {currentArmy.totalPointsUsed} / {maxArmyPoints}";
+        pointsText.text = $"현재 포인트: {currentArmy.totalCosts} / {maxArmyPoints}";
     }
 
     // [7] 저장 버튼 (UI 버튼에서 호출)

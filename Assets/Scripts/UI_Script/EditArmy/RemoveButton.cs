@@ -27,7 +27,6 @@ namespace CheeseChoco.WargameToSRPG.UI
             if (unitNameText) unitNameText.text = currentData.unitName;
             // if (unitIcon) unitIcon.sprite = currentData.unitIcon;
 
-            // 'X' 버튼이 눌리면 PlayerPartyManager에게 이 유닛을 제거하라고 요청
             if (removeButton != null)
             {
                 removeButton.onClick.RemoveAllListeners(); // 기존 리스너 제거
@@ -40,7 +39,7 @@ namespace CheeseChoco.WargameToSRPG.UI
             if (currentData == null) return;
 
             // 데이터 매니저에게 제거 요청
-            PlayerPartyManager.Instance?.RemoveUnit(currentData);
+            EditArmyManager.Instance?.RemoveUnit(currentData);
         }
     }
 }
