@@ -1,19 +1,16 @@
 using System;
 using System.Collections.Generic;
 
-// 이 클래스 자체가 하나의 JSON 파일이 됩니다.
 [Serializable]
 public class PlayerArmy
 {
     public string armyName;
-    public int totalCosts; // UI 표시 및 검증용
+    public int totalCosts;
 
-    // 이 리스트에 플레이어가 선택한 유닛들이 담깁니다.
     public List<ArmyUnitEntry> units;
 
     public PlayerArmy()
     {
-        // 저장된 파일이 없을 때를 대비한 기본 생성자
         armyName = "My First Army";
         totalCosts = 0;
         units = new List<ArmyUnitEntry>();

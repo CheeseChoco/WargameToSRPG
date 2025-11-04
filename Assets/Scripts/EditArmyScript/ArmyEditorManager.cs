@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using TMPro; // TextMeshPro UI 사용
 using UnityEngine;
+using System.IO;
 
 public class ArmyEditorManager : MonoBehaviour
 {
@@ -25,8 +26,8 @@ public class ArmyEditorManager : MonoBehaviour
 
     void Start()
     {
-        // [3] 게임 시작 시 저장된 부대 정보를 불러옵니다.
-        currentArmy = SaveLoadService.LoadArmy();
+        currentArmy = GameDataHolder.ArmyToEdit;
+        if (currentArmy == null ) currentArmy = new PlayerArmy();
 
         // (여기서 allAvailableUnits 리스트를 기반으로 UI 버튼들 생성)
 

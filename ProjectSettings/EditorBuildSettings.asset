@@ -14,5 +14,11 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/gamebase.unity
     guid: ac6366fca3fdf45409262113da4f1264
+  - enabled: 1
+    path: Assets/Scenes/SelectArmy.unity
+    guid: 45b6b1fdd8782524a8ddf15db8bb8f24
+  - enabled: 1
+    path: Assets/Scenes/EditArmy.unity
+    guid: 1c7824cccc7740c48a323cc82f127b7b
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
