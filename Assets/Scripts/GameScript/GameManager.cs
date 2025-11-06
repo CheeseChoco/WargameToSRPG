@@ -1,13 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
 using TMPro;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace finished3
 {
-    // korean: 게임의 전반적인 상태와 턴을 관리하는 '두뇌' 역할을 합니다.
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance { get; private set; }
@@ -16,13 +15,12 @@ namespace finished3
         public GameObject actionButton;
         public TextMeshProUGUI actionButtonText;
 
-        private UnitInfo activeCharacter; // 현재 행동 중인 캐릭터 (플레이어)
+        private UnitInfo activeCharacter;
         [Header("캐릭터 생성 설정")]
         public List<GameObject> characterPrefabs;
 
 
         public List<UnitInfo> playerCharacters { get; private set; }
-        // --- [추가] 생성된 적 캐릭터들을 관리할 리스트 ---
         private List<UnitInfo> enemyCharacters;
         public List<OverlayTile> placementAreaTiles;
         
@@ -39,6 +37,7 @@ namespace finished3
         public TextMeshProUGUI winText;
         private bool isGameWon = false;
 
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -54,7 +53,8 @@ namespace finished3
                 enemyCharacters = new List<UnitInfo>();
 				unitAction = gameObject.AddComponent<UnitAction>();
                 stageId = GameDataHolder.SelectedStageNum;
-			}
+
+            }
         }
 
         private void Start()
@@ -70,7 +70,6 @@ namespace finished3
             if (actionButton != null)
             {
                 actionButton.SetActive(true);
-                // korean: [수정됨] 텍스트를 한글에서 영어로 변경했습니다.
                 actionButtonText.text = "End Placement";
             }
         }
@@ -115,7 +114,7 @@ namespace finished3
             Debug.Log("플레이어 턴 종료! 적 턴을 시작합니다.");
             currentPhase = GamePhase.EnemyTurn;
 
-            mouseController.DeselectCharacter(); // 캐릭터 선택 해제
+            mouseController.DeselectCharacter();
 
             if (actionButton != null)
                 actionButton.SetActive(false);
@@ -146,13 +145,10 @@ namespace finished3
         {
             Debug.Log("페이즈: 적 턴");
 
-            // 모든 적 유닛이 행동
             foreach (var enemy in enemyCharacters.ToList())
             {
-                // 캐릭터가 살아있고 활성화 상태인지 확인
                 if (enemy.gameObject.activeSelf)
                 {
-                    // enemy가 null이 아닌지 한번 더 체크해주면 더욱 안전합니다.
                     if (enemy != null)
                     {
                         yield return StartCoroutine(enemy.GetComponent<EnemyAI>().ProcessTurn());
@@ -161,11 +157,8 @@ namespace finished3
                 }
             }
 
-            // 모든 적의 행동이 끝나면 다시 플레이어 턴으로 전환
             currentPhase = GamePhase.PlayerTurn;
             Debug.Log("페이즈: 플레이어 턴");
-            // 플레이어 입력 허용 (예: MouseController 다시 활성화)
-            // FindObjectOfType<MouseController>().enabled = true;
             yield return new WaitForSeconds(1.0f);
             StartPlayerTurn();
         }
@@ -193,6 +186,22 @@ namespace finished3
 
         private void SpawnInitialCharacters()
         {
+            PlayerArmy army = GameDataHolder.ArmyToEdit;
+            Debug.Log(army.armyName);
+
+            foreach (ArmyUnitEntry entry in army.units)
+            {
+                Debug.Log($"{entry.unitID} 검색");
+                if (UnitDatabaseManager.Instance.unitDatabase.TryGetValue(entry.unitID, out UnitSO unitData))
+                {
+                    Debug.Log($"{unitData.unitName} Add");
+                    characterPrefabs.Add(unitData.unitPrefab);
+                }
+            }
+
+
+
+
             List<OverlayTile> availableSpawnTiles = placementAreaTiles.Where(t => t.unitOnTile == null).ToList();
             for (int i = 0; i < characterPrefabs.Count; i++)
             {
@@ -203,11 +212,11 @@ namespace finished3
                 OverlayTile spawnTile = availableSpawnTiles[i];
 
                 mouseController.PositionunitOnTile(UnitInfo, spawnTile);
+                Debug.Log($"{UnitInfo.name} 소환됨");
                 playerCharacters.Add(UnitInfo);
             }
         }
 
-        // --- [추가] 적 캐릭터들을 스폰하는 함수 ---
         private void SpawnInitialEnemies()
         {
             List<EnemySpawnData> enemySpawnDatas = StageManager.Instance.GetEnemySpawnData(stageId);
@@ -217,10 +226,8 @@ namespace finished3
                 return;
             }
 
-            // 1. 설정된 좌표 리스트를 순회합니다.
             for (int i = 0; i < enemySpawnDatas.Count; i++)
             {
-                // 생성할 적 프리팹이 부족하면 중단합니다.
                 if (i >= enemySpawnDatas.Count)
                 {
                     Debug.LogWarning("스폰 좌표보다 설정된 적 프리팹 수가 부족합니다.");
@@ -230,10 +237,8 @@ namespace finished3
                 Vector2Int spawnPos = enemySpawnDatas[i].spawnPosition;
                 OverlayTile tile = MapManager.Instance.GetTileAt(spawnPos);
 
-                // 2. 해당 좌표에 타일이 있고, 비어있는지 확인합니다.
                 if (tile != null && tile.unitOnTile == null)
                 {
-                    // 3. 적 프리팹을 생성하고 배치합니다.
                     GameObject charInstance = Instantiate(enemySpawnDatas[i].enemyPrefab);
                     UnitInfo UnitInfo = charInstance.GetComponent<UnitInfo>();
                     UnitInfo.faction = Faction.Enemy;
@@ -278,7 +283,6 @@ namespace finished3
 
         public void UnitMoveNAttack(UnitInfo unit, OverlayTile tile, List<OverlayTile> rangeTiles)
         {
-            //Debug.Log("게임매니저 공격 시작");
             actionCount++;
 			unitAction.UnitMoveNAttack(unit, tile, rangeTiles, () =>
 			{

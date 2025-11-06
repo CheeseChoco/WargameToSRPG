@@ -1090,6 +1090,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameStartButton: {fileID: 1983604604}
+  armyButtonPrefab: {fileID: 6879423270578739495, guid: c921c7e57778e424aabdaaac032a72c1, type: 3}
+  armyScrollContent: {fileID: 1234665781}
 --- !u!4 &996580136
 Transform:
   m_ObjectHideFlags: 0
@@ -2655,6 +2657,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 996580135}
+    - target: {fileID: 9158490474456527175, guid: c5bf588841ab69c4d8a6050d49285cb5, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnClickBackButton
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

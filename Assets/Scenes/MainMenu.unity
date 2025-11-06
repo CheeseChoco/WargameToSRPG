@@ -1055,6 +1055,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1874888440}
   m_CullTransparentMesh: 1
+--- !u!1 &1993496497
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1993496498}
+  - component: {fileID: 1993496499}
+  m_Layer: 0
+  m_Name: UnitDatabaseManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1993496498
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1993496497}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.2402587, y: 0.7001574, z: 2.8966408}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1993496499
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1993496497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a3251b9508ba254b8db7f1ac8d1a909, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  allUnitSO:
+  - {fileID: 11400000, guid: 3f69f23a3f8e4754ebfd429bea03f5a0, type: 2}
+  - {fileID: 11400000, guid: 5cebc7e1988f3f84a9cd2a8faf8a2d78, type: 2}
 --- !u!1 &1998394523
 GameObject:
   m_ObjectHideFlags: 0
@@ -1243,3 +1290,4 @@ SceneRoots:
   - {fileID: 574167088}
   - {fileID: 618311436}
   - {fileID: 2020763925}
+  - {fileID: 1993496498}

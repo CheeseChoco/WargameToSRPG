@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
 
 [Serializable]
 public class PlayerArmy
@@ -15,13 +17,13 @@ public class PlayerArmy
         totalCosts = 0;
         units = new List<ArmyUnitEntry>();
     }
+
+
 }
 
-// 부대에 포함된 개별 유닛의 정보
 [Serializable]
 public class ArmyUnitEntry
 {
-    // UnitDefinitionSO의 unitID와 매칭되는 키
     public string unitID;
 
 
