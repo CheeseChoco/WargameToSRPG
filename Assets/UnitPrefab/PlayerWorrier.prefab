@@ -569,6 +569,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   standingOnTile: {fileID: 0}
   faction: 0
+  unitSO: {fileID: 11400000, guid: 5cebc7e1988f3f84a9cd2a8faf8a2d78, type: 2}
   movementRange: 4
   attackRange: 1
   health: 100

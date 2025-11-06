@@ -17,7 +17,7 @@ namespace CheeseChoco.WargameToSRPG.UI
         // [SerializeField] private Image unitPortraitImage; // 유닛 대형 이미지
         // [SerializeField] private Button recruitButton; // --- [수정] 이 버튼은 더 이상 필요하지 않습니다. ---
 
-        private RecruitData currentSelectedData;
+        private UnitSO currentSelectedData;
 
         private void Awake()
         {
@@ -38,13 +38,13 @@ namespace CheeseChoco.WargameToSRPG.UI
         /// 선택된 유닛의 데이터로 상세 정보 패널을 업데이트합니다.
         /// </summary>
         /// <param name="data">표시할 모집 데이터</param>
-        public void ShowDetails(RecruitData data)
+        public void ShowDetails(UnitSO data)
         {
             currentSelectedData = data;
 
             if (unitNameText) unitNameText.text = currentSelectedData.unitName;
-            if (unitDescriptionText) unitDescriptionText.text = currentSelectedData.unitDescription;
-            if (costText) costText.text = $"Cost : {currentSelectedData.cost}";
+            if (unitDescriptionText) unitDescriptionText.text = currentSelectedData.description;
+            if (costText) costText.text = $"Cost : {currentSelectedData.pointCost}";
             // if (unitPortraitImage) unitPortraitImage.sprite = currentSelectedData.unitPortrait;
 
             // --- [수정] 버튼 활성화 로직 제거 ---

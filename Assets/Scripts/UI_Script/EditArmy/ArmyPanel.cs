@@ -56,10 +56,10 @@ namespace CheeseChoco.WargameToSRPG.UI
             }
 
             // 2. PlayerPartyManager에서 최신 부대원 목록을 가져옵니다.
-            List<RecruitData> currentParty = EditArmyManager.Instance.GetPartyMembers();
+            List<UnitSO> currentParty = EditArmyManager.Instance.GetPartyMembers();
 
             // 3. 목록만큼 새 슬롯 프리팹을 생성하고 설정합니다.
-            foreach (RecruitData unit in currentParty)
+            foreach (UnitSO unit in currentParty)
             {
                 GameObject slotInstance = Instantiate(partySlotPrefab, contentParent);
                 RemoveButton slotScript = slotInstance.GetComponent<RemoveButton>();

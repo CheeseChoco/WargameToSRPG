@@ -1,16 +1,17 @@
-// SelectArmyManager.cs (수정/구현 예시)
+
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using TMPro;
 
 public class SelectArmyManager : MonoBehaviour
 {
     [Header("UI References")]
-    public Transform armyScrollContent; // 왼쪽 스크롤 뷰의 Content
-    public Transform unitScrollContent; // 오른쪽 스크롤 뷰의 Content
-    public GameObject armyButtonPrefab; // 부대 목록에 생성할 버튼 프리팹
-    public GameObject unitInfoPrefab;   // 유닛 목록에 생성할 UI 프리팹 (예: Text, Image+Text)
+    public Transform armyScrollContent; 
+    public Transform unitScrollContent; 
+    public GameObject armyButtonPrefab; 
+    public GameObject unitInfoPrefab;  
 
     public Button editButton;
     public Button deleteButton;
@@ -74,7 +75,7 @@ public class SelectArmyManager : MonoBehaviour
         foreach (string name in armyNames)
         {
             GameObject buttonGO = Instantiate(armyButtonPrefab, armyScrollContent);
-            buttonGO.GetComponentInChildren<Text>().text = name; // 프리팹 구조에 맞게 수정
+            buttonGO.GetComponentInChildren<TMP_Text>().text = name; // 프리팹 구조에 맞게 수정
 
             // (중요) 버튼에 클릭 이벤트 연결
             string tempName = name; // 람다식 클로저 문제 방지
@@ -124,11 +125,11 @@ public class SelectArmyManager : MonoBehaviour
             {
                 // 예: unitUI의 Text에 유닛 이름(unitData.unitName) 표시
                 // 예: unitUI의 Image에 유닛 아이콘(unitData.unitIcon - UnitSO에 추가 필요) 표시
-                unitUI.GetComponentInChildren<Text>().text = unitData.unitName;
+                unitUI.GetComponentInChildren<TMP_Text>().text = unitData.unitName;
             }
             else
             {
-                unitUI.GetComponentInChildren<Text>().text = $"{entry.unitID} (원본 데이터 없음)";
+                unitUI.GetComponentInChildren<TMP_Text>().text = $"{entry.unitID} (원본 데이터 없음)";
             }
         }
     }

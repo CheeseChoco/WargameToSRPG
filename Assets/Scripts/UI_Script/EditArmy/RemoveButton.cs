@@ -15,12 +15,12 @@ namespace CheeseChoco.WargameToSRPG.UI
         // [SerializeField] private Image unitIcon;
         [SerializeField] private Button removeButton; // 부대에서 제거하는 'X' 버튼
 
-        private RecruitData currentData;
+        private UnitSO currentData;
 
         /// <summary>
         /// 슬롯 UI를 설정합니다.
         /// </summary>
-        public void Setup(RecruitData data)
+        public void Setup(UnitSO data)
         {
             currentData = data;
 

@@ -13,6 +13,7 @@ namespace finished3
     {
         public OverlayTile standingOnTile;
         public Faction faction;
+        public UnitSO unitSO;
 
         [Header("능력치 설정")]
         public int movementRange;
@@ -30,6 +31,8 @@ namespace finished3
 
         private void Start()
         {
+            movementRange = unitSO.movementRange; attackRange = unitSO.attackRange; maxHealth = unitSO.maxHealth; attackDamage = unitSO.attackPower;
+
             health = maxHealth;
             if(unitHealthUI != null)
             {

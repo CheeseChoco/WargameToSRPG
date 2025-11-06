@@ -9,6 +9,8 @@ public class StageSelectManager : MonoBehaviour
     private int selectedStageNum = -1;
     public Button gameStartButton;
 
+    public GameObject ArmySelectMenu;
+    public GameObject 
     public static StageSelectManager Instance {  get; private set; }
 
     public void Awake()

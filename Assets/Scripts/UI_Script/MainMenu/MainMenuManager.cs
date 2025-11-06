@@ -7,4 +7,9 @@ public class MainMenuManager : MonoBehaviour
     {
         SceneManager.LoadScene("StageSelect");
     }
+
+    public void OnClickArmyEditButton()
+    {
+        SceneManager.LoadScene("SelectArmy");
+    }
 }

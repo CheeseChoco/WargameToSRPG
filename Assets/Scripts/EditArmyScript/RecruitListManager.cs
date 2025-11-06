@@ -16,22 +16,14 @@ namespace CheeseChoco.WargameToSRPG.UI
         [SerializeField] private RecruitDetailPanel detailPanel; // 상세 정보 패널
 
         // 테스트용 데이터. 실제로는 다른 곳(예: GameManager, DB)에서 받아옵니다.
-        private List<RecruitData> testRecruitList = new List<RecruitData>();
+        public List<UnitSO> RecruitList = new List<UnitSO>();
 
         void Start()
         {
-            // 테스트 데이터 생성
-            CreateTestData();
-
             // 리스트 채우기
             PopulateList();
         }
 
-        private void CreateTestData()
-        {
-            testRecruitList.Add(new RecruitData("recruit_001", "Warrior", "Melee Attack Unit.", 100));
-            testRecruitList.Add(new RecruitData("recruit_002", "Ranger", "Range Attack Unit.", 120));
-        }
 
         /// <summary>
         /// 데이터 리스트를 기반으로 스크롤 뷰의 내용을 채웁니다.
@@ -52,7 +44,7 @@ namespace CheeseChoco.WargameToSRPG.UI
             }
 
             // 리스트의 모든 데이터에 대해 버튼 생성
-            foreach (RecruitData data in testRecruitList)
+            foreach (UnitSO data in RecruitList)
             {
                 GameObject buttonInstance = Instantiate(recruitButtonPrefab, contentParent);
                 RecruitButton recruitButton = buttonInstance.GetComponent<RecruitButton>();
@@ -77,7 +69,7 @@ namespace CheeseChoco.WargameToSRPG.UI
         /// 리스트의 버튼이 클릭되었을 때 호출될 콜백 함수입니다.
         /// </summary>
         /// <param name="selectedData">선택된 버튼의 데이터</param>
-        private void OnRecruitButtonHovered(RecruitData selectedData)
+        private void OnRecruitButtonHovered(UnitSO selectedData)
         {
             if (detailPanel != null)
             {
@@ -93,7 +85,7 @@ namespace CheeseChoco.WargameToSRPG.UI
             }
         }
 
-        private void OnRecruitButtonSelected(RecruitData selectedData)
+        private void OnRecruitButtonSelected(UnitSO selectedData)
         {
             Debug.Log($"부대 편입 시도: {selectedData.unitName} (ID: {selectedData.unitID})");
 
