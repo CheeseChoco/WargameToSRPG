@@ -20,6 +20,9 @@ namespace CheeseChoco.WargameToSRPG.UI
 
         public Button cancelButton;
         public Button saveButton;
+        public Button P500Button;
+        public Button P1000Button;
+        public Button P2000Button;
         public TMP_InputField armyNameInput;
 
         public Action OnPartyUpdated;
@@ -58,6 +61,9 @@ namespace CheeseChoco.WargameToSRPG.UI
             armyNameInput.text = GameDataHolder.ArmyToEdit.armyName;
             saveButton.onClick.AddListener(OnClickSaveButton);
             cancelButton.onClick.AddListener(OnClickCancelButton);
+            P500Button.onClick.AddListener(() => OnClickPointButton(500));
+            P1000Button.onClick.AddListener(() => OnClickPointButton(1000));
+            P2000Button.onClick.AddListener(() => OnClickPointButton(2000));
         }
 
         public bool AddUnit(UnitSO unit)
@@ -112,6 +118,14 @@ namespace CheeseChoco.WargameToSRPG.UI
         public void OnClickCancelButton()
         {
             SceneManager.LoadScene("SelectArmy");
+        }
+
+        public void OnClickPointButton(int point)
+        {
+            maxCost = point;
+            currentCost = 0;
+            partyMembers.Clear();
+            OnPartyUpdated?.Invoke();
         }
 
 
