@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -111,7 +112,7 @@ namespace finished3
         {
             if (currentPhase != GamePhase.PlayerTurn) return;
 
-            Debug.Log("플레이어 턴 종료! 적 턴을 시작합니다.");
+            //Debug.Log("플레이어 턴 종료! 적 턴을 시작합니다.");
             currentPhase = GamePhase.EnemyTurn;
 
             mouseController.DeselectCharacter();
@@ -125,7 +126,7 @@ namespace finished3
 
         private void StartPlayerTurn()
         {
-            Debug.Log("플레이어 턴 시작!");
+            //Debug.Log("플레이어 턴 시작!");
             currentPhase = GamePhase.PlayerTurn;
 
             foreach (var character in playerCharacters)
@@ -143,7 +144,7 @@ namespace finished3
 
         private IEnumerator EnemyTurnRoutine()
         {
-            Debug.Log("페이즈: 적 턴");
+            //Debug.Log("페이즈: 적 턴");
 
             foreach (var enemy in enemyCharacters.ToList())
             {
@@ -151,6 +152,7 @@ namespace finished3
                 {
                     if (enemy != null)
                     {
+                        //Debug.Log($"{enemy.name}행동 시작");
                         yield return StartCoroutine(enemy.GetComponent<EnemyAI>().ProcessTurn());
                         yield return new WaitForSeconds(1f);
                     }
@@ -158,7 +160,7 @@ namespace finished3
             }
 
             currentPhase = GamePhase.PlayerTurn;
-            Debug.Log("페이즈: 플레이어 턴");
+            //Debug.Log("페이즈: 플레이어 턴");
             yield return new WaitForSeconds(1.0f);
             StartPlayerTurn();
         }
@@ -222,7 +224,6 @@ namespace finished3
             List<EnemySpawnData> enemySpawnDatas = StageManager.Instance.GetEnemySpawnData(stageId);
             if (enemySpawnDatas.Count == 0)
             {
-                Debug.LogWarning("GameManager에 설정된 적 스폰 좌표가 없습니다.");
                 return;
             }
 
@@ -230,7 +231,6 @@ namespace finished3
             {
                 if (i >= enemySpawnDatas.Count)
                 {
-                    Debug.LogWarning("스폰 좌표보다 설정된 적 프리팹 수가 부족합니다.");
                     break;
                 }
 
@@ -240,11 +240,12 @@ namespace finished3
                 if (tile != null && tile.unitOnTile == null)
                 {
                     GameObject charInstance = Instantiate(enemySpawnDatas[i].enemyPrefab);
-                    UnitInfo UnitInfo = charInstance.GetComponent<UnitInfo>();
-                    UnitInfo.faction = Faction.Enemy;
+                    UnitInfo unitInfo = charInstance.GetComponent<UnitInfo>();
+                    unitInfo.faction = Faction.Enemy;
+                    unitInfo.AddComponent<EnemyAI>();
 
-                    mouseController.PositionunitOnTile(UnitInfo, tile);
-                    enemyCharacters.Add(UnitInfo);
+                    mouseController.PositionunitOnTile(unitInfo, tile);
+                    enemyCharacters.Add(unitInfo);
                 }
                 else
                 {
@@ -260,6 +261,7 @@ namespace finished3
             }
             else if (deadUnit.faction == Faction.Enemy)
             {
+                Debug.Log($"{deadUnit.name}적 유닛 사망");
                 enemyCharacters.Remove(deadUnit);
 
                 if (enemyCharacters.Count == 0)

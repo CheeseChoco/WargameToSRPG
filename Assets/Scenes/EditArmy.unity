@@ -4510,6 +4510,8 @@ MonoBehaviour:
   RecruitList:
   - {fileID: 11400000, guid: 5cebc7e1988f3f84a9cd2a8faf8a2d78, type: 2}
   - {fileID: 11400000, guid: 3f69f23a3f8e4754ebfd429bea03f5a0, type: 2}
+  - {fileID: 11400000, guid: 5ca8cddd8413e3c43ac514ff1fa99a2b, type: 2}
+  - {fileID: 11400000, guid: 43484247187b5444d96be0a37f05cd2f, type: 2}
 --- !u!4 &2064818396
 Transform:
   m_ObjectHideFlags: 0

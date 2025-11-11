@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class UnitAction : MonoBehaviour
 {
-    public float speed = 5; //유닛의 이동 속도
+    public float speed = 5;
 
 
     private PathFinder pathFinder;
@@ -20,18 +20,15 @@ public class UnitAction : MonoBehaviour
         rangeFinder = new RangeFinder();
     }
 
-    // unit이랑 tile 받아서 해당 유닛 타일에서 이동
     public void UnitMove(UnitInfo unit, OverlayTile tile, List<OverlayTile> rangeTiles, Action callback)
     {
         path = pathFinder.FindPath(unit.standingOnTile, tile, rangeTiles);
         StartCoroutine(MoveCoroutine(unit, null, callback));
     }
 
-    //적 유닛 클릭해서 공격까지 한 번에 하는 경우
     public void UnitMoveNAttack(UnitInfo unit, OverlayTile tile, List<OverlayTile> rangeTiles, Action callback)
     {
 
-        //Debug.Log("UnitAction 공격 시작");
         var attackableTiles = rangeFinder.GetTilesInPureRange(tile.unitOnTile.standingOnTile.grid2DLocation, unit.attackRange);
 
         var reachableAttackTiles = rangeTiles.Intersect(attackableTiles).ToList();
@@ -47,11 +44,10 @@ public class UnitAction : MonoBehaviour
         Attack(unit, tile.unitOnTile);
     }
 
-    // 이동 코드, 공격 x
     private IEnumerator MoveCoroutine(UnitInfo unit, UnitInfo target, Action callback)
     {
 
-        //Debug.Log("행동 코루틴 시작");
+        //Debug.Log("이동 코루틴 시작");
         foreach (var tile in path)
         {
             var targetPosition = new Vector3(tile.transform.position.x, tile.transform.position.y + 0.0001f, tile.transform.position.z);
@@ -75,13 +71,11 @@ public class UnitAction : MonoBehaviour
         callback.Invoke();
     }
 
-    //단순 공격
     public void Attack(UnitInfo attacker, UnitInfo defender)
     {
         defender.TakeDamage(attacker.attackDamage);
     }
 
-    //유닛 위치 변경 시 타일, 유닛에 붙은 값 변경
     public void PositionUnitOnTile(UnitInfo unit, OverlayTile newTile)
     {
         if (unit.standingOnTile != null)

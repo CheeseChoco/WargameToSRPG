@@ -50,7 +50,7 @@ namespace CheeseChoco.WargameToSRPG.UI
                 Debug.Log(unit.unitID);
                 if (UnitDatabaseManager.Instance.unitDatabase.TryGetValue(unit.unitID, out UnitSO unitData))
                 {
-                    partyMembers.Add(unitData);
+                    AddUnit(unitData);
                 }
             }
             OnPartyUpdated?.Invoke();

@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 785520027f0812d408104c441ab8a592, type: 3}
-  m_Name: RangerSO
+  m_Name: MagicionSO
   m_EditorClassIdentifier: 
-  unitID: 002
-  unitName: Ranger
-  description: RangeUnit
-  unitPrefab: {fileID: 6688883963585979011, guid: d0f30b2e4992e3e49a545b2079a548ca, type: 3}
-  pointCost: 120
-  maxHealth: 60
-  attackPower: 25
-  movementRange: 3
-  attackRange: 4
+  unitID: 004
+  unitName: Magicion
+  description: High range and damage unit
+  unitPrefab: {fileID: 6688883963585979011, guid: 44767c7a47531d94488829934ae4a43d, type: 3}
+  pointCost: 150
+  maxHealth: 30
+  attackPower: 60
+  movementRange: 1
+  attackRange: 5

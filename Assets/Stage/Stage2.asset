@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stageId: 2
   enemySpawnList:
-  - enemyPrefab: {fileID: 6688883963585979011, guid: 54599f0f94a79bf43bbb3b4c222a67f1, type: 3}
+  - enemyPrefab: {fileID: 6688883963585979011, guid: d0f30b2e4992e3e49a545b2079a548ca, type: 3}
     spawnPosition: {x: 3, y: 3}
-  - enemyPrefab: {fileID: 6688883963585979011, guid: 54599f0f94a79bf43bbb3b4c222a67f1, type: 3}
+  - enemyPrefab: {fileID: 6688883963585979011, guid: d0f30b2e4992e3e49a545b2079a548ca, type: 3}
     spawnPosition: {x: 3, y: 0}
-  - enemyPrefab: {fileID: 6688883963585979011, guid: 54599f0f94a79bf43bbb3b4c222a67f1, type: 3}
+  - enemyPrefab: {fileID: 6688883963585979011, guid: d0f30b2e4992e3e49a545b2079a548ca, type: 3}
     spawnPosition: {x: 3, y: -3}

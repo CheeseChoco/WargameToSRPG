@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 785520027f0812d408104c441ab8a592, type: 3}
-  m_Name: RangerSO
+  m_Name: CavalrySO
   m_EditorClassIdentifier: 
-  unitID: 002
-  unitName: Ranger
-  description: RangeUnit
-  unitPrefab: {fileID: 6688883963585979011, guid: d0f30b2e4992e3e49a545b2079a548ca, type: 3}
-  pointCost: 120
-  maxHealth: 60
-  attackPower: 25
-  movementRange: 3
-  attackRange: 4
+  unitID: 003
+  unitName: Cavalry
+  description: High speed melee unit
+  unitPrefab: {fileID: 6688883963585979011, guid: fd95c95b68a0fd44b9b370a6adb7e237, type: 3}
+  pointCost: 200
+  maxHealth: 180
+  attackPower: 40
+  movementRange: 6
+  attackRange: 1
