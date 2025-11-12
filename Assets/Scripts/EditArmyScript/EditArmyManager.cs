@@ -97,6 +97,14 @@ namespace CheeseChoco.WargameToSRPG.UI
 
         public void OnClickSaveButton()
         {
+            foreach(var name in SaveLoadService.GetAllSavedArmyNames())
+            {
+                if (name == armyNameInput.text)
+                {
+                    Debug.Log("이미 존재하는 이름입니다.");
+                    return;
+                }
+            }
             PlayerArmy saveArmy = new PlayerArmy();
             
             if(armyNameInput.text != null)
@@ -122,9 +130,11 @@ namespace CheeseChoco.WargameToSRPG.UI
 
         public void OnClickPointButton(int point)
         {
+            if (point < currentCost) {
+                Debug.Log("현재 코스트가 초과되었습니다.");
+                return; }
             maxCost = point;
-            currentCost = 0;
-            partyMembers.Clear();
+            
             OnPartyUpdated?.Invoke();
         }
 

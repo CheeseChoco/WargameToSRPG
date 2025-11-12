@@ -35,7 +35,6 @@ namespace finished3
 
                 for (int z = bounds.max.z; z >= bounds.min.z; z--)
                 {
-                    // korean: [추가됨] Z가 0인 타일(물)에는 오버레이 타일을 생성하지 않습니다.
                     if (z == 0) { continue; }
 
                     for (int y = bounds.min.y; y < bounds.max.y; y++)
