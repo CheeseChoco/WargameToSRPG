@@ -99,7 +99,7 @@ namespace CheeseChoco.WargameToSRPG.UI
         {
             foreach(var name in SaveLoadService.GetAllSavedArmyNames())
             {
-                if (name == armyNameInput.text)
+                if (name == armyNameInput.text && armyNameInput.text != GameDataHolder.ArmyToEdit.armyName)
                 {
                     Debug.Log("이미 존재하는 이름입니다.");
                     return;

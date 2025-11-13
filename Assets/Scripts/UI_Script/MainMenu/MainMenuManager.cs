@@ -12,4 +12,9 @@ public class MainMenuManager : MonoBehaviour
     {
         SceneManager.LoadScene("SelectArmy");
     }
+
+    public void OnClickQuitButton()
+    {
+        Application.Quit();
+    }
 }
